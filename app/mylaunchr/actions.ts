@@ -48,7 +48,7 @@ export async function uploadLanding(_: UploadState, formData: FormData): Promise
   if (!(cover instanceof File) || cover.size === 0 || !cover.type.startsWith("image/") || cover.size > 5 * 1024 * 1024) return { error: "Añade una portada de imagen (máximo 5 MB)." };
   if (!(source instanceof File) || source.size === 0 || source.size > 25 * 1024 * 1024 || (!source.type && !source.name.toLowerCase().endsWith(".zip"))) return { error: "Añade un archivo ZIP de la landing (máximo 25 MB)." };
   const allScreenshots = [...desktopScreenshots, ...mobileScreenshots];
-  if (desktopScreenshots.length > 6 || mobileScreenshots.length > 6) return { error: "Puedes añadir como máximo 6 capturas por dispositivo." };
+  if (desktopScreenshots.length > 5 || mobileScreenshots.length > 5) return { error: "Puedes añadir como máximo 5 capturas por dispositivo." };
   if (allScreenshots.some((file) => !file.type.startsWith("image/") || file.size > 5 * 1024 * 1024)) return { error: "Cada captura debe ser una imagen de máximo 5 MB." };
 
   const landingId = crypto.randomUUID();
@@ -69,7 +69,7 @@ export async function uploadLanding(_: UploadState, formData: FormData): Promise
   const { error: sourceError } = await supabase.storage.from("landing-files").upload(sourcePath, source, { contentType: source.type || "application/octet-stream", upsert: false });
   if (sourceError) { await removeUploads(); return { error: `No se pudo subir el archivo fuente: ${sourceError.message}` }; }
   uploadedSourcePaths.push(sourcePath);
-  const screenshotAssets: { landing_id: string; path: string; kind: "screenshot"; position: number }[] = [];
+  const screenshotAssets: { landing_id: string; path: string; kind: "screenshot"; device: "desktop" | "mobile"; position: number }[] = [];
   for (const [device, files] of [["desktop", desktopScreenshots], ["mobile", mobileScreenshots]] as const) {
     for (const [index, file] of files.entries()) {
       const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
@@ -77,7 +77,7 @@ export async function uploadLanding(_: UploadState, formData: FormData): Promise
       const { error } = await supabase.storage.from("landing-previews").upload(path, file, { contentType: file.type, upsert: false });
       if (error) { await removeUploads(); return { error: `No se pudo subir una captura: ${error.message}` }; }
       uploadedPreviewPaths.push(path);
-      screenshotAssets.push({ landing_id: landingId, path, kind: "screenshot", position: index });
+      screenshotAssets.push({ landing_id: landingId, path, kind: "screenshot", device, position: index });
     }
   }
   const { data: coverUrl } = supabase.storage.from("landing-previews").getPublicUrl(coverPath);

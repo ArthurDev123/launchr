@@ -51,6 +51,7 @@ create table public.landing_assets (
   landing_id uuid not null references public.landings(id) on delete cascade,
   path text not null,
   kind text not null check (kind in ('cover', 'screenshot', 'source', 'documentation')),
+  device text check (device in ('desktop', 'mobile')),
   position smallint not null default 0,
   created_at timestamptz not null default now(),
   unique (landing_id, path)
@@ -95,6 +96,7 @@ create table public.payouts (
 
 create index landings_creator_idx on public.landings(creator_id);
 create index landings_public_idx on public.landings(status, featured desc, published_at desc);
+create index landing_assets_preview_idx on public.landing_assets(landing_id, kind, device, position);
 create index order_items_creator_idx on public.order_items(creator_id);
 create index orders_buyer_idx on public.orders(buyer_id, created_at desc);
 
@@ -171,6 +173,7 @@ create policy "Creators delete their source files" on storage.objects for delete
 alter table public.profiles add column if not exists contact_email text;
 alter table public.profiles add column if not exists website_url text;
 alter table public.profiles add column if not exists phone text;
+alter table public.landing_assets add column if not exists device text check (device in ('desktop', 'mobile'));
 
 -- Refresh the signup trigger when upgrading an existing database.
 create or replace function public.handle_new_user() returns trigger language plpgsql security definer set search_path = public as $$

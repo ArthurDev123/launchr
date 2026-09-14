@@ -13,7 +13,7 @@ export default async function LandingPage({ params }: PageProps<"/landings/[slug
   const creator = landing.profiles[0];
   const creatorSlug = creator?.username;
   const initials = creator?.full_name?.slice(0, 2).toUpperCase() || "L";
-  const screenshots = landing.landing_assets.filter((asset) => asset.kind === "screenshot").sort((first, second) => first.position - second.position).map((asset) => ({ url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/landing-previews/${asset.path}`, device: asset.path.includes("/mobile/") ? "mobile" as const : "desktop" as const }));
+  const screenshots = landing.landing_assets.filter((asset) => asset.kind === "screenshot").sort((first, second) => first.position - second.position).map((asset) => ({ url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/landing-previews/${asset.path}`, device: asset.device ?? (asset.path.includes("/mobile/") ? "mobile" as const : "desktop" as const) }));
   const coverImage = landing.cover_image_url || (landing.landing_assets.find((asset) => asset.kind === "cover") ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/landing-previews/${landing.landing_assets.find((asset) => asset.kind === "cover")?.path}` : null);
 
   return <main className="landing-detail">

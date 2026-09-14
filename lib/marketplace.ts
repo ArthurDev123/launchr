@@ -23,8 +23,8 @@ export async function getPublicLandings(category?: string) {
 export async function getPublicLanding(slug: string) {
   const supabase = await createClient();
   if (!supabase) return null;
-  const { data } = await supabase.from("landings").select(`${landingFields}, landing_assets(path, kind, position)`).eq("status", "published").eq("slug", slug).maybeSingle();
-  return data as unknown as (PublicLanding & { landing_assets: { path: string; kind: string; position: number }[] }) | null;
+  const { data } = await supabase.from("landings").select(`${landingFields}, landing_assets(path, kind, device, position)`).eq("status", "published").eq("slug", slug).maybeSingle();
+  return data as unknown as (PublicLanding & { landing_assets: { path: string; kind: string; device: "desktop" | "mobile" | null; position: number }[] }) | null;
 }
 
 export async function getPublicCreator(username: string) {
