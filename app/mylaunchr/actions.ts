@@ -43,7 +43,7 @@ export async function uploadLanding(_: UploadState, formData: FormData): Promise
   const source = formData.get("source");
   const desktopScreenshots = formData.getAll("screenshots_desktop").filter((file): file is File => file instanceof File && file.size > 0);
   const mobileScreenshots = formData.getAll("screenshots_mobile").filter((file): file is File => file instanceof File && file.size > 0);
-  if (title.length < 2 || !slug || !Number.isFinite(price) || price < 0) return { error: "Revisa el título, slug y precio de tu landing." };
+  if (title.length < 2 || !slug || !Number.isFinite(price) || price < 0) return { error: "Revisa el título, slug y precio orientativo de tu landing." };
   if (!String(formData.get("tagline") ?? "").trim() || !String(formData.get("description") ?? "").trim() || !String(formData.get("technologies") ?? "").trim()) return { error: "Completa el tagline, la descripción y las tecnologías." };
   if (!(cover instanceof File) || cover.size === 0 || !cover.type.startsWith("image/") || cover.size > 5 * 1024 * 1024) return { error: "Añade una portada de imagen (máximo 5 MB)." };
   if (!(source instanceof File) || source.size === 0 || source.size > 25 * 1024 * 1024 || (!source.type && !source.name.toLowerCase().endsWith(".zip"))) return { error: "Añade un archivo ZIP de la landing (máximo 25 MB)." };
